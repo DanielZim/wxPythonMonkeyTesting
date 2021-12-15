@@ -8,7 +8,6 @@ in Python.
 import time
 import wx
 from random import randint
-import keyboard
 from application import Form1
 
 
@@ -92,7 +91,7 @@ class MyApp(wx.App):
 
             #print("Click Position Monkey Tester: " + str((click_position_x, click_position_y)))
 
-            if keyboard.is_pressed('c'):
+            if wx.GetKeyState(wx.WXK_TAB):
                 break
 
             self.mainLoop.Step()
