@@ -3,6 +3,7 @@ samples/
 
 # Ignore Screenshots
 Screenshots/
+.screenshot*
 
 ## Python stuff starts here
 
