@@ -21,7 +21,7 @@ class journey:
 
 
 class Form1(wx.Frame):
-    def __init__(self):
+    def __init__(self, monkey_tester):
         wx.Panel.__init__(
             self, None, title="My Journey Planner", size=(550, 425))
 
@@ -50,9 +50,8 @@ class Form1(wx.Frame):
                                      self.sampleList2, wx.CB_DROPDOWN)
 
         # Add event handlers as appropriate
-
-        wx.EVT_BUTTON(self, 10, self.OnClick)
-        wx.EVT_BUTTON(self, 11, self.OnClick)
+        self.button.Bind(wx.EVT_BUTTON, self.OnClick)
+        self.leaver.Bind(wx.EVT_BUTTON, self.OnClick)
 
         for box in range(30, 32, 1):
             wx.EVT_COMBOBOX(self, box, self.EvtComboBox)
@@ -62,6 +61,8 @@ class Form1(wx.Frame):
         # does mean that this demo lets you see the events more easily.
 
         self.going = journey()
+
+        self.monkey_tester = monkey_tester
 
     def EvtRadioBox(self, event):
         self.logger.AppendText('EvtRadioBox: %d\n' % event.GetInt())
@@ -74,6 +75,7 @@ class Form1(wx.Frame):
             self.going.setend(event.GetString())
 
     def OnClick(self, event):
+        self.monkey_tester.is_click_position_on_widget(event.EventObject)
         self.logger.AppendText(" Click on object with Id %d\n" %
                                event.GetId())
         print(self.going)

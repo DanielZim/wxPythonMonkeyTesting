@@ -7,8 +7,8 @@ in Python.
 
 import time
 import wx
-from random import randint
 from application import Form1
+from monkey_tester import Monkey_Tester
 
 
 class MyEventLoop(wx.GUIEventLoop):
@@ -82,11 +82,11 @@ class MyApp(wx.App):
             #print("Current Mouse Position: " + str(wx.GetMousePosition()))
 
             frame_width, frame_height = self.frame.GetSize()
+            click_position = self.monkey_tester.generate_click(
+                frame_width, frame_height, 20)
 
-            click_position_x, click_position_y = self.frame.ClientToScreen(
-                (randint(20, frame_width-20), randint(20, frame_height-50)))
-
-            clicker.MouseMove(click_position_x, click_position_y)
+            click_position_screen = self.frame.ClientToScreen(click_position)
+            clicker.MouseMove(click_position_screen.x, click_position_screen.y)
             clicker.MouseClick()
 
             #print("Click Position Monkey Tester: " + str((click_position_x, click_position_y)))
@@ -98,16 +98,19 @@ class MyApp(wx.App):
 
             print((time.time() - start) * 1000)
 
+            self.monkey_tester.reset_current_click_position()
+
     def ExitMainLoop(self):
         self.mainLoop.Exit()
 
     def OnInit(self):
-        self.frame = Form1()
+        self.monkey_tester = Monkey_Tester()
+
+        self.frame = Form1(self.monkey_tester)
         self.frame.Show(True)
-        # self.frame.Maximize(True)
+
         self.SetTopWindow(self.frame)
 
-        #self.keepGoing = True
         return True
 
 
