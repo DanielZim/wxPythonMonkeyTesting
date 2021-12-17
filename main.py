@@ -7,8 +7,10 @@ in Python.
 
 import time
 import wx
+import os
 from application import Form1
 from monkey_tester import Monkey_Tester
+from pathlib import Path
 
 
 class MyEventLoop(wx.GUIEventLoop):
@@ -72,6 +74,7 @@ class MyApp(wx.App):
         self.mainLoop = MyEventLoop()
 
         clicker = wx.UIActionSimulator()
+        i = 0
 
         while True:
 
@@ -100,6 +103,9 @@ class MyApp(wx.App):
 
             self.monkey_tester.reset_current_click_position()
 
+            self.take_screenshot(i)
+            i += 1
+
     def ExitMainLoop(self):
         self.mainLoop.Exit()
 
@@ -112,6 +118,45 @@ class MyApp(wx.App):
         self.SetTopWindow(self.frame)
 
         return True
+
+    def take_screenshot(self, i):
+        """ Takes a screenshot of the screen at give pos & size (rect). """
+        rect = self.frame.GetRect()
+
+        # Create a DC for the whole screen area
+        screen = wx.ScreenDC()
+
+        # Create a Bitmap that will hold the screenshot image later on
+        # Note that the Bitmap must have a size big enough to hold the screenshot
+        bmp = wx.Bitmap(rect.width, rect.height)
+
+        # Create a memory DC that will be used for actually taking the screenshot
+        mem = wx.MemoryDC()
+
+        # Tell the memory DC to use our Bitmap
+        # all drawing action on the memory DC will go to the Bitmap now
+        mem.SelectObject(bmp)
+
+        # Blit (in this case copy) the actual screen on the memory DC
+        # and thus the Bitmap
+        mem.Blit(0,  # Copy to this X coordinate
+                 0,  # Copy to this Y coordinate
+                 rect.width,  # Copy this width
+                 rect.height,  # Copy this height
+                 screen,  # From where do we copy?
+                 rect.x,  # What's the X offset in the original DC?
+                 rect.y  # What's the Y offset in the original DC?
+                 )
+
+        del mem  # Release bitmap
+
+        # Path of current script
+        script_directory = Path(__file__).parent.absolute()
+        screenshot_directory = os.path.join(script_directory, 'Screenshots')
+        filename = 'screenshot_' + str(i) + '.png'
+
+        bmp.SaveFile(os.path.join(screenshot_directory,
+                     filename), wx.BITMAP_TYPE_PNG)
 
 
 app = MyApp(False)
