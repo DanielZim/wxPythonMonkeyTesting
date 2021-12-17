@@ -1,6 +1,9 @@
 # Ignore samples folder
 samples/
 
+# Ignore Screenshots
+Screenshots/
+
 ## Python stuff starts here
 
 # Byte-compiled / optimized / DLL files
