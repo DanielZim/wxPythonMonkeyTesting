@@ -8,9 +8,11 @@ in Python.
 import time
 import wx
 import os
+import pyautogui
 from application import Form1
 from monkey_tester import Monkey_Tester
 from pathlib import Path
+from PIL import ImageDraw
 
 
 class MyEventLoop(wx.GUIEventLoop):
@@ -88,6 +90,8 @@ class MyApp(wx.App):
             click_position = self.monkey_tester.generate_click(
                 frame_width, frame_height, 20)
 
+            self.take_screenshot(i, click_position)
+
             click_position_screen = self.frame.ClientToScreen(click_position)
             clicker.MouseMove(click_position_screen.x, click_position_screen.y)
             clicker.MouseClick()
@@ -103,7 +107,6 @@ class MyApp(wx.App):
 
             self.monkey_tester.reset_current_click_position()
 
-            self.take_screenshot(i)
             i += 1
 
     def ExitMainLoop(self):
@@ -119,44 +122,26 @@ class MyApp(wx.App):
 
         return True
 
-    def take_screenshot(self, i):
+    def take_screenshot(self, i, click_position):
         """ Takes a screenshot of the screen at give pos & size (rect). """
         rect = self.frame.GetRect()
 
-        # Create a DC for the whole screen area
-        screen = wx.ScreenDC()
+        # Take screenshot of the applicatin with pyautogui (taking screenshots with wxPython does not work in xvfb for some reason)
+        screenshot = pyautogui.screenshot(region=rect.Get())
 
-        # Create a Bitmap that will hold the screenshot image later on
-        # Note that the Bitmap must have a size big enough to hold the screenshot
-        bmp = wx.Bitmap(rect.width, rect.height)
-
-        # Create a memory DC that will be used for actually taking the screenshot
-        mem = wx.MemoryDC()
-
-        # Tell the memory DC to use our Bitmap
-        # all drawing action on the memory DC will go to the Bitmap now
-        mem.SelectObject(bmp)
-
-        # Blit (in this case copy) the actual screen on the memory DC
-        # and thus the Bitmap
-        mem.Blit(0,  # Copy to this X coordinate
-                 0,  # Copy to this Y coordinate
-                 rect.width,  # Copy this width
-                 rect.height,  # Copy this height
-                 screen,  # From where do we copy?
-                 rect.x,  # What's the X offset in the original DC?
-                 rect.y  # What's the Y offset in the original DC?
-                 )
-
-        del mem  # Release bitmap
+        # Add click position as a point to the screenshot
+        draw = ImageDraw.Draw(screenshot)
+        x, y = click_position
+        r = 3
+        draw.ellipse((x-r, y-r, x+r, y+r), fill=(255, 0, 0, 255))
 
         # Path of current script
         script_directory = Path(__file__).parent.absolute()
         screenshot_directory = os.path.join(script_directory, 'Screenshots')
         filename = 'screenshot_' + str(i) + '.png'
 
-        bmp.SaveFile(os.path.join(screenshot_directory,
-                     filename), wx.BITMAP_TYPE_PNG)
+        # Save screenshot
+        screenshot.save(os.path.join(screenshot_directory, filename))
 
 
 app = MyApp(False)
