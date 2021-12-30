@@ -115,10 +115,11 @@ class MyApp(wx.App):
     def OnInit(self):
         self.monkey_tester = Monkey_Tester()
 
-        self.frame = Form1(self.monkey_tester)
-        self.frame.Show(True)
+        self.SetAppName("Demo App")
 
+        self.frame = Form1(self.monkey_tester)
         self.SetTopWindow(self.frame)
+        self.frame.Show(True)
 
         return True
 
@@ -144,5 +145,10 @@ class MyApp(wx.App):
         screenshot.save(os.path.join(screenshot_directory, filename))
 
 
-app = MyApp(False)
-app.MainLoop()
+def main():
+    app = MyApp(False)
+    app.MainLoop()
+
+
+if __name__ == "__main__":
+    main()
